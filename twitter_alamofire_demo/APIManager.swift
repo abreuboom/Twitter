@@ -119,21 +119,39 @@ class APIManager: SessionManager {
     
     // MARK: TODO: Favorite a Tweet
     
-    func favoriteTweet(tweet: Tweet) {
+    func favoriteTweet(tweet: Tweet, completion: @escaping (Tweet?, Error?) -> ()) {
         let urlString = "https://api.twitter.com/1.1/favorites/create.json"
-        let parameters = ["id": (String) tweet.id, "include_entities": true]
+        let parameters = ["id": tweet.id] as [String: Any]
         request(urlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
             if response.result.isSuccess,
                 let tweetDictionary = response.result.value as? [String: Any] {
                 let tweet = Tweet(dictionary: tweetDictionary)
+                print("tweet favorited")
                 completion(tweet, nil)
             } else {
+                print("favorite failed")
                 completion(nil, response.result.error)
             }
         }
     }
     
     // MARK: TODO: Un-Favorite a Tweet
+    
+    func unfavoriteTweet(tweet: Tweet, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/favorites/create.json"
+        let parameters = ["id": String(tweet.id), "include_entities": false] as [String: Any]
+        request(urlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+                let tweetDictionary = response.result.value as? [String: Any] {
+                let tweet = Tweet(dictionary: tweetDictionary)
+                print("tweet unfavorited")
+                completion(tweet, nil)
+            } else {
+                print("unfavorite failed")
+                completion(nil, response.result.error)
+            }
+        }
+    }
     
     // MARK: TODO: Retweet
     

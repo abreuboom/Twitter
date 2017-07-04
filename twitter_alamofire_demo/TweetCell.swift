@@ -34,7 +34,6 @@ class TweetCell: UITableViewCell {
             
             profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
             profilePhotoView.layer.masksToBounds = true
-            
         }
     }
     
@@ -44,9 +43,19 @@ class TweetCell: UITableViewCell {
     
     @IBAction func retweet(_ sender: UIButton) {
         if sender.isSelected == true {
+            APIManager.shared.unfavoriteTweet(tweet: tweet, completion: { (tweet: Tweet?, error: Error?) in
+                if let error = error {
+                    print("FAILED")
+                }
+            })
             sender.isSelected = false
         }
         else {
+            APIManager.shared.favoriteTweet(tweet: tweet, completion: { (tweet: Tweet?, error: Error?) in
+                if let error = error {
+                    print("FAILED")
+                }
+            })
             sender.isSelected = true
         }
     }
