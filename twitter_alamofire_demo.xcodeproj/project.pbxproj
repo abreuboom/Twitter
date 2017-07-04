@@ -668,7 +668,7 @@
 				DEVELOPMENT_TEAM = 3CJT76PC4B;
 				INFOPLIST_FILE = twitter_alamofire_demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.codepath.twitter-alamofire-demo";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.abreuboom.twitter-alamofire-demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
@@ -683,7 +683,7 @@
 				DEVELOPMENT_TEAM = 3CJT76PC4B;
 				INFOPLIST_FILE = twitter_alamofire_demo/Info.plist;
 				LD_RUNPATH_SEARCH_PATHS = "$(inherited) @executable_path/Frameworks";
-				PRODUCT_BUNDLE_IDENTIFIER = "com.codepath.twitter-alamofire-demo";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.abreuboom.twitter-alamofire-demo";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				SWIFT_VERSION = 3.0;
 			};
