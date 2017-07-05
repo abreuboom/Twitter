@@ -120,9 +120,11 @@ class APIManager: SessionManager {
     // MARK: TODO: Favorite a Tweet
     
     func favoriteTweet(tweet: Tweet, completion: @escaping (Tweet?, Error?) -> ()) {
-        let urlString = "https://api.twitter.com/1.1/favorites/create.json"
+        let urlString = "https://api.twitter.com/1.1/favorites/create.json?id="
+        let id = String(tweet.id)
+        let fullUrlString = urlString + id
         let parameters = ["id": tweet.id] as [String: Any]
-        request(urlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+        request(fullUrlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
             if response.result.isSuccess,
                 let tweetDictionary = response.result.value as? [String: Any] {
                 let tweet = Tweet(dictionary: tweetDictionary)
@@ -130,6 +132,7 @@ class APIManager: SessionManager {
                 completion(tweet, nil)
             } else {
                 print("favorite failed")
+                print(response.result.error!)
                 completion(nil, response.result.error)
             }
         }
@@ -138,9 +141,11 @@ class APIManager: SessionManager {
     // MARK: TODO: Un-Favorite a Tweet
     
     func unfavoriteTweet(tweet: Tweet, completion: @escaping (Tweet?, Error?) -> ()) {
-        let urlString = "https://api.twitter.com/1.1/favorites/create.json"
-        let parameters = ["id": String(tweet.id), "include_entities": false] as [String: Any]
-        request(urlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+        let urlString = "https://api.twitter.com/1.1/favorites/destroy.json?id="
+        let id = String(tweet.id)
+        let fullUrlString = urlString + id
+        let parameters = ["id": tweet.id] as [String: Any]
+        request(fullUrlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
             if response.result.isSuccess,
                 let tweetDictionary = response.result.value as? [String: Any] {
                 let tweet = Tweet(dictionary: tweetDictionary)
@@ -148,6 +153,7 @@ class APIManager: SessionManager {
                 completion(tweet, nil)
             } else {
                 print("unfavorite failed")
+                print(response.result.error!)
                 completion(nil, response.result.error)
             }
         }
@@ -155,11 +161,78 @@ class APIManager: SessionManager {
     
     // MARK: TODO: Retweet
     
+    func retweet(tweet: Tweet, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/statuses/retweet/"
+        let id = String(tweet.id)
+        let fullUrlString = urlString + id + ".json"
+        let parameters = ["id": tweet.id] as [String: Any]
+        request(fullUrlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+                let tweetDictionary = response.result.value as? [String: Any] {
+                let tweet = Tweet(dictionary: tweetDictionary)
+                print("retweet succeeded")
+                completion(tweet, nil)
+            } else {
+                print("retweet failed")
+                print(response.result.error!)
+                completion(nil, response.result.error)
+            }
+        }
+    }
+    
     // MARK: TODO: Un-Retweet
+    
+    func unRetweet(tweet: Tweet, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/statuses/unretweet/"
+        let id = String(tweet.id)
+        let fullUrlString = urlString + id + ".json"
+        let parameters = ["id": tweet.id] as [String: Any]
+        request(fullUrlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+                let tweetDictionary = response.result.value as? [String: Any] {
+                let tweet = Tweet(dictionary: tweetDictionary)
+                print("unretweet succeeded")
+                completion(tweet, nil)
+            } else {
+                print("unretweet failed")
+                print(response.result.error!)
+                completion(nil, response.result.error)
+            }
+        }
+    }
     
     // MARK: TODO: Compose Tweet
     
+    func composeTweet(with text: String, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/statuses/update.json"
+        let parameters = ["status": text]
+        oauthManager.client.post(urlString, parameters: parameters, headers: nil, body: nil, success: { (response: OAuthSwiftResponse) in
+            let tweetDictionary = try! response.jsonObject() as! [String: Any]
+            let tweet = Tweet(dictionary: tweetDictionary)
+            completion(tweet, nil)
+        }) { (error: OAuthSwiftError) in
+            completion(nil, error.underlyingError)
+        }
+    }
+    
     // MARK: TODO: Get User Timeline
+    
+    func getUserTimeLine(screenName: String, completion: @escaping ([Tweet]?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="
+        let fullUrlString = urlString + screenName + "&count=20"
+        let parameters = ["screen_name": screenName]
+        request(fullUrlString, method: .get, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+            let tweetDictionary = response.result.value as? [[String: Any]]{
+                let tweets = tweetDictionary.flatMap({ (dictionary) -> Tweet in
+                    Tweet(dictionary: dictionary)
+                })
+                completion(tweets, nil)
+            } else {
+                completion(nil, response.result.error)
+            }
+        }
+    }
     
     
     //--------------------------------------------------------------------------------//
