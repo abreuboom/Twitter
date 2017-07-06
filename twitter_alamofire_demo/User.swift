@@ -41,14 +41,26 @@ class User {
     
     var name: String
     var screenName: String?
+    var description: String?
+    var followers: Int?
+    var following: Int?
     var profilePhotoUrl: URL?
+    var backgroundPhotoUrl: URL?
     
     init(dictionary: [String: Any]) {
         self.dictionary = dictionary
         name = dictionary["name"] as! String
         screenName = dictionary["screen_name"] as? String
+        description = dictionary["description"] as? String
+        followers = dictionary["followers_count"] as? Int
+        following = dictionary["friends_count"] as? Int
         let profilePhoto = dictionary["profile_image_url_https"] as? String
-        profilePhotoUrl = URL(string: profilePhoto!)
-
+        let highResProfilePhoto = profilePhoto?.replacingOccurrences(of: "normal", with: "bigger")
+        
+        
+        profilePhotoUrl = URL(string: highResProfilePhoto!)
+        if let backgroundPhoto = dictionary["profile_banner_url"] as? String {
+            backgroundPhotoUrl = URL(string: backgroundPhoto)
+        }
     }
 }

@@ -8,14 +8,17 @@
 
 import UIKit
 
-class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, ComposeViewControllerDelegate {
+class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate,  ComposeViewControllerDelegate, TweetCellDelegate {
     
     var tweets: [Tweet] = []
+    
+    var tappedUser: User?
     
     @IBOutlet weak var tableView: UITableView!
     
     override func viewDidLoad() {
         super.viewDidLoad()
+        
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -56,6 +59,11 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
         
+        cell.profilePhotoView.tag = indexPath.row
+        let tapped:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(TimelineViewController.didTapProfile(_:)))
+        tapped.numberOfTapsRequired = 1
+        cell.profilePhotoView?.addGestureRecognizer(tapped)
+        
         cell.tweet = tweets[indexPath.row]
         
         return cell
@@ -84,9 +92,25 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         tableView.reloadData()
     }
     
-     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        let composeViewController = segue.destination as! ComposeViewController
-        composeViewController.delegate = self
-     }
+    func didTapProfile(_ sender: UITapGestureRecognizer) {
+        let indexPath = sender.view?.tag
+        let tweet = tweets[indexPath!]
+        tappedUser = tweet.user
+        
+        performSegue(withIdentifier: "profileSegue", sender: nil)
+        
+    }
+    
+    
+    override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
+        if segue.identifier == "composeSegue" {
+            let composeViewController = segue.destination as! ComposeViewController
+            composeViewController.delegate = self
+        }
+        else if segue.identifier == "profileSegue" {
+            let profileViewController = segue.destination as! ProfileViewController
+            profileViewController.user = tappedUser
+        }
+    }
     
 }

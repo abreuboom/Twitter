@@ -23,6 +23,7 @@ class APIManager: SessionManager {
     static let accessTokenURL = "https://api.twitter.com/oauth/access_token"
     
     static let callbackURLString = "alamoTwitter://"
+
     
     // MARK: Twitter API methods
     func login(success: @escaping () -> (), failure: @escaping (Error?) -> ()) {
@@ -41,6 +42,8 @@ class APIManager: SessionManager {
                     print("Welcome \(user.name)")
                     
                     // MARK: TODO: set User.current, so that it's persisted
+                    
+                    User.current = user
                     
                     success()
                 }
@@ -81,15 +84,15 @@ class APIManager: SessionManager {
 
         // This uses tweets from disk to avoid hitting rate limit. Comment out if you want fresh
         // tweets,
-        if let data = UserDefaults.standard.object(forKey: "hometimeline_tweets") as? Data {
-            let tweetDictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as! [[String: Any]]
-            let tweets = tweetDictionaries.flatMap({ (dictionary) -> Tweet in
-                Tweet(dictionary: dictionary)
-            })
-            
-            completion(tweets, nil)
-            return
-        }
+//        if let data = UserDefaults.standard.object(forKey: "hometimeline_tweets") as? Data {
+//            let tweetDictionaries = NSKeyedUnarchiver.unarchiveObject(with: data) as! [[String: Any]]
+//            let tweets = tweetDictionaries.flatMap({ (dictionary) -> Tweet in
+//                Tweet(dictionary: dictionary)
+//            })
+//            
+//            completion(tweets, nil)
+//            return
+//        }
         
         
         request(URL(string: "https://api.twitter.com/1.1/statuses/home_timeline.json")!, method: .get)
@@ -219,18 +222,29 @@ class APIManager: SessionManager {
     
     func getUserTimeLine(screenName: String, completion: @escaping ([Tweet]?, Error?) -> ()) {
         let urlString = "https://api.twitter.com/1.1/statuses/user_timeline.json?screen_name="
-        let fullUrlString = urlString + screenName + "&count=20"
-        let parameters = ["screen_name": screenName]
-        request(fullUrlString, method: .get, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
-            if response.result.isSuccess,
-            let tweetDictionary = response.result.value as? [[String: Any]]{
-                let tweets = tweetDictionary.flatMap({ (dictionary) -> Tweet in
+        let fullUrlString = urlString + screenName
+        request(URL(string: fullUrlString)!, method: .get)
+            .validate()
+            .responseJSON { (response) in
+                guard response.result.isSuccess else {
+                    completion(nil, response.result.error)
+                    return
+                }
+                guard let tweetDictionaries = response.result.value as? [[String: Any]] else {
+                    print("Failed to parse tweets")
+                    let error = NSError(domain: "", code: 0, userInfo: [NSLocalizedDescriptionKey : "Failed to parse tweets"])
+                    completion(nil, error)
+                    return
+                }
+                
+                let data = NSKeyedArchiver.archivedData(withRootObject: tweetDictionaries)
+                UserDefaults.standard.set(data, forKey: "hometimeline_tweets")
+                UserDefaults.standard.synchronize()
+                
+                let tweets = tweetDictionaries.flatMap({ (dictionary) -> Tweet in
                     Tweet(dictionary: dictionary)
                 })
                 completion(tweets, nil)
-            } else {
-                completion(nil, response.result.error)
-            }
         }
     }
     

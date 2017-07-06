@@ -8,14 +8,15 @@
 
 import UIKit
 import AlamofireImage
+import TTTAttributedLabel
 
-protocol TweetCellDelegate {
-    func didTapReply()
+protocol TweetCellDelegate: class {
+    func didTapProfile(_ sender: UITapGestureRecognizer)
 }
 
-class TweetCell: UITableViewCell {
+class TweetCell: UITableViewCell, TTTAttributedLabelDelegate {
     
-    //weak var delegate: TweetCellDelegate!
+    weak var delegate: TweetCellDelegate!
     
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var tweetTextLabel: UILabel!
@@ -25,6 +26,8 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var likesLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var profilePhotoView: UIImageView!
+    @IBOutlet weak var retweetButton: UIButton!
+    @IBOutlet weak var favoriteButton: UIButton!
     
     var tweet: Tweet! {
         didSet {
@@ -39,6 +42,19 @@ class TweetCell: UITableViewCell {
             
             profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
             profilePhotoView.layer.masksToBounds = true
+            
+            if tweet.retweeted == true {
+                retweetButton.isSelected = true
+            }
+            else {
+                retweetButton.isSelected = false
+            }
+            if tweet.favorited == true {
+                favoriteButton.isSelected = true
+            }
+            else {
+                favoriteButton.isSelected = false
+            }
         }
     }
     

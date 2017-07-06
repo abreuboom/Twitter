@@ -10,14 +10,19 @@ import UIKit
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
 
+    @IBOutlet weak var backgroundPhotoView: UIImageView!
     @IBOutlet weak var profilePhotoView: UIImageView!
     @IBOutlet weak var nameField: UILabel!
     @IBOutlet weak var screenNameField: UILabel!
     @IBOutlet weak var captionField: UILabel!
+    @IBOutlet weak var followingLabel: UILabel!
+    @IBOutlet weak var followersLabel: UILabel!
     
     @IBOutlet weak var tableView: UITableView!
+    
     var tweets: [Tweet] = []
     
+    var user = User.current
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -33,11 +38,36 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 100
+        
+//        profilePhotoView.layer.borderWidth = 5
+//        profilePhotoView.layer.borderColor = UIColor.white.cgColor
+        profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
+        profilePhotoView.layer.masksToBounds = true
+        
+        setUserData()
         getTimeline()
     }
     
+    func setUserData () {
+        if let backgroundPhotoURL = user?.backgroundPhotoUrl {
+            backgroundPhotoView.af_setImage(withURL: backgroundPhotoURL)
+        }
+        else {
+            backgroundPhotoView.backgroundColor = UIColor.white
+        }
+        let profURL = user?.profilePhotoUrl?.absoluteString
+        let updatedURL = profURL?.replacingOccurrences(of: "_bigger", with: "")
+        let profilePhotoURL = URL(string: updatedURL!)
+        profilePhotoView.af_setImage(withURL: profilePhotoURL!)
+        nameField.text = user?.name
+        screenNameField.text = user?.screenName
+        captionField.text = user?.description
+        followingLabel.text = String(describing: user?.following! ?? 0)
+        followersLabel.text = String(describing: user?.followers! ?? 0)
+    }
+    
     func getTimeline() {
-        let screename = User.current?.screenName
+        let screename = user?.screenName
         APIManager.shared.getUserTimeLine(screenName: screename!) { (tweets, error) in
             if let tweets = tweets {
                 self.tweets = tweets

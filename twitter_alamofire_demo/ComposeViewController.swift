@@ -26,8 +26,11 @@ class ComposeViewController: UIViewController, UITextViewDelegate{
         super.viewDidLoad()
         
         let user = User.current
+        let profilePhotoURL = user?.profilePhotoUrl
         
-        //profilePhotoView.af_setImage(withURL: user?.profilePhotoUrl!)
+        profilePhotoView.af_setImage(withURL: profilePhotoURL!)
+        profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
+        profilePhotoView.layer.masksToBounds = true
         
         tweetButton.titleEdgeInsets = UIEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
         tweetButton.layer.cornerRadius = tweetButton.frame.width / 3
