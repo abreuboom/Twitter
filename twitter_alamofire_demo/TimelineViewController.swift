@@ -16,6 +16,12 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
     
     @IBOutlet weak var tableView: UITableView!
     
+    
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.isTranslucent = false
+        self.navigationController?.view.backgroundColor = .white
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
         
@@ -93,11 +99,12 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
     }
     
     func didTapProfile(_ sender: UITapGestureRecognizer) {
-        let indexPath = sender.view?.tag
-        let tweet = tweets[indexPath!]
+        let indexPathRow = sender.view?.tag
+        let tweet = tweets[indexPathRow!]
         tappedUser = tweet.user
-        
-        performSegue(withIdentifier: "profileSegue", sender: nil)
+        if tappedUser != nil {
+            performSegue(withIdentifier: "profileSegue", sender: nil)
+        }
         
     }
     
@@ -109,7 +116,15 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         }
         else if segue.identifier == "profileSegue" {
             let profileViewController = segue.destination as! ProfileViewController
-            profileViewController.user = tappedUser
+            profileViewController.user = tappedUser!
+        }
+        else if segue.identifier == "detailSegue" {
+            let cell = sender as! UITableViewCell
+            if let indexPath =  tableView.indexPath(for: cell) {
+                let tweet = tweets[indexPath.row]
+                let detailViewController = segue.destination as! DetailViewController
+                detailViewController.tweet = tweet
+            }
         }
     }
     

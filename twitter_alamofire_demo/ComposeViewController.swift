@@ -33,7 +33,7 @@ class ComposeViewController: UIViewController, UITextViewDelegate{
         profilePhotoView.layer.masksToBounds = true
         
         tweetButton.titleEdgeInsets = UIEdgeInsets(top: 10.0, left: 10.0, bottom: 10.0, right: 10.0)
-        tweetButton.layer.cornerRadius = tweetButton.frame.width / 3
+        tweetButton.layer.cornerRadius = tweetButton.frame.width / 5
         tweetButton.layer.masksToBounds = true
         
         textView.textColor = UIColor.lightGray

@@ -24,8 +24,17 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var user = User.current
     
+    override func viewWillAppear(_ animated: Bool) {
+        self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
+        self.navigationController?.navigationBar.shadowImage = UIImage()
+        self.navigationController?.navigationBar.isTranslucent = true
+        self.navigationController?.view.backgroundColor = .clear
+    }
+    
     override func viewDidLoad() {
         super.viewDidLoad()
+        
+        
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -39,10 +48,11 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 100
         
-//        profilePhotoView.layer.borderWidth = 5
-//        profilePhotoView.layer.borderColor = UIColor.white.cgColor
+        profilePhotoView.layer.borderWidth = 3
+        profilePhotoView.layer.borderColor = UIColor.white.cgColor
         profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
         profilePhotoView.layer.masksToBounds = true
+        profilePhotoView.layer.zPosition = 20
         
         setUserData()
         getTimeline()
@@ -60,15 +70,16 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         let profilePhotoURL = URL(string: updatedURL!)
         profilePhotoView.af_setImage(withURL: profilePhotoURL!)
         nameField.text = user?.name
-        screenNameField.text = user?.screenName
+        let screenName = user?.screenName
+        screenNameField.text = "@" + screenName!
         captionField.text = user?.description
         followingLabel.text = String(describing: user?.following! ?? 0)
         followersLabel.text = String(describing: user?.followers! ?? 0)
     }
     
     func getTimeline() {
-        let screename = user?.screenName
-        APIManager.shared.getUserTimeLine(screenName: screename!) { (tweets, error) in
+        let screenName = user?.screenName
+        APIManager.shared.getUserTimeLine(screenName: screenName!) { (tweets, error) in
             if let tweets = tweets {
                 self.tweets = tweets
                 self.tableView.reloadData()
@@ -100,20 +111,25 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.deselectRow(at: indexPath, animated: true)
     }
 
+    @IBAction func composeTweet(_ sender: UIBarButtonItem) {
+        performSegue(withIdentifier: "composeSegue", sender: self)
+    }
+    
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
 
-    /*
-    // MARK: - Navigation
-
-    // In a storyboard-based application, you will often want to do a little preparation before navigation
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
-        // Get the new view controller using segue.destinationViewController.
-        // Pass the selected object to the new view controller.
+        if segue.identifier == "detailSegue" {
+            let cell = sender as! UITableViewCell
+            if let indexPath =  tableView.indexPath(for: cell) {
+                let tweet = tweets[indexPath.row]
+                let detailViewController = segue.destination as! DetailViewController
+                detailViewController.tweet = tweet
+            }
+        }
     }
-    */
 
 }

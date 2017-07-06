@@ -238,7 +238,7 @@ class APIManager: SessionManager {
                 }
                 
                 let data = NSKeyedArchiver.archivedData(withRootObject: tweetDictionaries)
-                UserDefaults.standard.set(data, forKey: "hometimeline_tweets")
+                UserDefaults.standard.set(data, forKey: "usertimeline_tweets")
                 UserDefaults.standard.synchronize()
                 
                 let tweets = tweetDictionaries.flatMap({ (dictionary) -> Tweet in

@@ -10,8 +10,7 @@
 #endif
 #endif
 
-#import "TTTAttributedLabel.h"
 
-FOUNDATION_EXPORT double TTTAttributedLabelVersionNumber;
-FOUNDATION_EXPORT const unsigned char TTTAttributedLabelVersionString[];
+FOUNDATION_EXPORT double ActiveLabelVersionNumber;
+FOUNDATION_EXPORT const unsigned char ActiveLabelVersionString[];
 
