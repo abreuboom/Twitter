@@ -8,18 +8,18 @@
 
 import UIKit
 import AlamofireImage
-import TTTAttributedLabel
+import ActiveLabel
 
 protocol TweetCellDelegate: class {
     func didTapProfile(_ sender: UITapGestureRecognizer)
 }
 
-class TweetCell: UITableViewCell, TTTAttributedLabelDelegate {
+class TweetCell: UITableViewCell {
     
     weak var delegate: TweetCellDelegate!
     
     @IBOutlet weak var usernameLabel: UILabel!
-    @IBOutlet weak var tweetTextLabel: UILabel!
+    @IBOutlet weak var tweetTextLabel: ActiveLabel!
     @IBOutlet weak var handleLabel: UILabel!
     @IBOutlet weak var repliesLabel: UILabel!
     @IBOutlet weak var retweetsLabel: UILabel!
@@ -32,12 +32,26 @@ class TweetCell: UITableViewCell, TTTAttributedLabelDelegate {
     var tweet: Tweet! {
         didSet {
             tweetTextLabel.text = tweet.text
+            tweetTextLabel.numberOfLines = 0
+            tweetTextLabel.enabledTypes = [.mention, .hashtag, .url]
+            tweetTextLabel.backgroundColor = .white
+            
+            tweetTextLabel.customize { label in
+                label.hashtagColor = UIColor(red: 68.0/255, green: 178.0/255, blue: 231.0/255, alpha: 1)
+                label.mentionColor = UIColor(red: 68.0/255, green: 178.0/255, blue: 231.0/255, alpha: 1)
+                label.URLColor = UIColor(red: 68.0/255, green: 178.0/255, blue: 231.0/255, alpha: 1)
+                label.handleHashtagTap { hashtag in
+                    print("Success. You just tapped the \(hashtag) hashtag")
+                }
+            }
+            
+            
             usernameLabel.text = tweet.user.name
             handleLabel.text = "@" + tweet.user.screenName! + "  ·"
             dateLabel.text = tweet.createdAtString
             repliesLabel.text = String(0)
-            retweetsLabel.text = String(tweet.retweetCount)
-            likesLabel.text = String(describing: tweet.favoriteCount!)
+            retweetsLabel.text = tweet.intFormatter(x: tweet.retweetCount)
+            likesLabel.text = tweet.intFormatter(x: tweet.favoriteCount!)
             profilePhotoView.af_setImage(withURL:tweet.user.profilePhotoUrl!)
             
             profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
@@ -55,6 +69,17 @@ class TweetCell: UITableViewCell, TTTAttributedLabelDelegate {
             else {
                 favoriteButton.isSelected = false
             }
+            
+//            if tweet.media.isEmpty != true {
+//                let media = tweet.media
+//                let photoView = UIImageView()
+//                photoView.contentMode = .scaleAspectFill
+//                let photoURL = URL(string: media["expanded_url"] as! String)
+//                photoView.af_setImage(withURL: photoURL!)
+//                photoView.frame.size = CGSize(width: self.frame.width - 16, height: 400)
+//                self.insertSubview(photoView, at: 0)
+//            }
+            
         }
     }
     

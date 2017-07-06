@@ -20,7 +20,7 @@ class ComposeViewController: UIViewController, UITextViewDelegate{
     @IBOutlet weak var profilePhotoView: UIImageView!
     @IBOutlet weak var tweetButton: UIButton!
     @IBOutlet weak var textView: UITextView!
-    
+    @IBOutlet weak var characterCount: UILabel!
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -51,12 +51,28 @@ class ComposeViewController: UIViewController, UITextViewDelegate{
     }
     
     func textViewDidEndEditing(_ textView: UITextView) {
+        characterCount.text = "0"
         if textView.text.isEmpty {
             textView.text = "What's happening?"
             textView.textColor = UIColor.lightGray
         }
     }
     
+    
+    func textViewDidChange(_ textView: UITextView) {
+        let count = textView.text.characters.count
+        if count >= 120 && count < 140 {
+            characterCount.textColor = .red
+        }
+        else if count >= 140{
+            characterCount.textColor = .red
+        }
+        else{
+            characterCount.textColor = .lightGray
+            
+        }
+        characterCount.text = String(140 - count)
+    }
     @IBAction func tweet(_ sender: UIButton) {
         if(textView.text != "What's happening?" || textView.text != nil){
             let post = textView.text

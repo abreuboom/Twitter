@@ -63,4 +63,16 @@ class User {
             backgroundPhotoUrl = URL(string: backgroundPhoto)
         }
     }
+    
+    func intFormatter (x: Int) -> String{
+        if x > 1000000 {
+            return String(x/100000) + "M"
+        }
+        else if x > 1000 {
+            return String(x/1000) + "K"
+        }
+        else {
+            return String(x)
+        }
+    }
 }

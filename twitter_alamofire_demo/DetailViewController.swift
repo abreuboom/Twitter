@@ -7,13 +7,14 @@
 //
 
 import UIKit
+import ActiveLabel
 
 class DetailViewController: UIViewController, TweetCellDelegate {
 
     @IBOutlet weak var profilePhotoView: UIImageView!
     @IBOutlet weak var nameLabel: UILabel!
     @IBOutlet weak var screenNameLabel: UILabel!
-    @IBOutlet weak var tweetLabel: UILabel!
+    @IBOutlet weak var tweetLabel: ActiveLabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var retweetLabel: UILabel!
     @IBOutlet weak var likeLabel: UILabel!
@@ -41,14 +42,26 @@ class DetailViewController: UIViewController, TweetCellDelegate {
         profilePhotoView?.addGestureRecognizer(tapped)
         
         tweetLabel.text = tweet?.text
+        tweetLabel.numberOfLines = 0
+        tweetLabel.enabledTypes = [.mention, .hashtag, .url]
+        tweetLabel.backgroundColor = .white
+        
+        tweetLabel.customize { label in
+            label.hashtagColor = UIColor(red: 68.0/255, green: 178.0/255, blue: 231.0/255, alpha: 1)
+            label.mentionColor = UIColor(red: 68.0/255, green: 178.0/255, blue: 231.0/255, alpha: 1)
+            label.URLColor = UIColor(red: 68.0/255, green: 178.0/255, blue: 231.0/255, alpha: 1)
+            label.handleHashtagTap { hashtag in
+                print("Success. You just tapped the \(hashtag) hashtag")
+            }
+        }
         nameLabel.text = tweet?.user.name
         let screenName = tweet?.user.screenName
         screenNameLabel.text = "@" + screenName!
         dateLabel.text = tweet?.createdAtString
         let retweetCount = tweet?.retweetCount
-        retweetLabel.text = String(describing: retweetCount!)
+        retweetLabel.text = tweet?.intFormatter(x: retweetCount!)
         let favoriteCount = tweet?.favoriteCount
-        likeLabel.text = String(describing: favoriteCount!)
+        likeLabel.text = tweet?.intFormatter(x: favoriteCount!)
         
         let profilePhotoURL = tweet?.user.profilePhotoUrl
         profilePhotoView.af_setImage(withURL: profilePhotoURL!)

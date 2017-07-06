@@ -24,6 +24,10 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     var user = User.current
     
+    override var preferredStatusBarStyle: UIStatusBarStyle {
+        return .lightContent
+    }
+    
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.navigationBar.setBackgroundImage(UIImage(), for: .default)
         self.navigationController?.navigationBar.shadowImage = UIImage()
@@ -33,8 +37,6 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
-        
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -73,8 +75,8 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         let screenName = user?.screenName
         screenNameField.text = "@" + screenName!
         captionField.text = user?.description
-        followingLabel.text = String(describing: user?.following! ?? 0)
-        followersLabel.text = String(describing: user?.followers! ?? 0)
+        followingLabel.text = user?.intFormatter(x: user?.following! ?? 0)
+        followersLabel.text = user?.intFormatter(x:user?.followers! ?? 0)
     }
     
     func getTimeline() {

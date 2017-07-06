@@ -20,6 +20,7 @@ class Tweet {
     var retweeted: Bool // Configure retweet button
     var user: User // Contains name, screenname, etc. of tweet author
     var createdAtString: String // Display date
+    var media: URL?
     
     // MARK: - Create initializer with dictionary
     init(dictionary: [String: Any]) {
@@ -30,8 +31,19 @@ class Tweet {
         retweetCount = dictionary["retweet_count"] as! Int
         retweeted = dictionary["retweeted"] as! Bool
         
-        let user = dictionary["user"] as! [String: Any]
-        self.user = User(dictionary: user)
+        let entities = dictionary["entities"] as! [String: Any]
+//        if entities["media"] != nil {
+//            print(entities["media"])
+//            let mediaDictionary = entities["media"] as! [String : Any]
+//            print(mediaDictionary)
+//            let url = mediaDictionary["expanded_url"] as! String
+//            media = URL(string: url)
+//            print(media!)
+//        }
+        
+        
+        let twitterUser = dictionary["user"] as! [String: Any]
+        user = User(dictionary: twitterUser)
         
         let createdAtOriginalString = dictionary["created_at"] as! String
         let formatter = DateFormatter()
@@ -48,6 +60,18 @@ class Tweet {
 //        formatter.string(from: date)
         
         
+    }
+    
+    func intFormatter (x: Int) -> String{
+        if x > 1000000 {
+            return String(x/100000) + "M"
+        }
+        else if x > 1000 {
+            return String(x/1000) + "K"
+        }
+        else {
+            return String(x)
+        }
     }
 }
 
