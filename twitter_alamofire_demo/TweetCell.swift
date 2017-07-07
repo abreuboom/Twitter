@@ -28,6 +28,7 @@ class TweetCell: UITableViewCell {
     @IBOutlet weak var profilePhotoView: UIImageView!
     @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var favoriteButton: UIButton!
+    @IBOutlet weak var mediaView: UIImageView!
     
     var tweet: Tweet! {
         didSet {
@@ -43,6 +44,9 @@ class TweetCell: UITableViewCell {
                 label.handleHashtagTap { hashtag in
                     print("Success. You just tapped the \(hashtag) hashtag")
                 }
+                label.handleURLTap({ (url) in
+                    UIApplication.shared.openURL(url)
+                })
             }
             
             
@@ -57,6 +61,9 @@ class TweetCell: UITableViewCell {
             profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
             profilePhotoView.layer.masksToBounds = true
             
+            mediaView.layer.cornerRadius = 10
+            mediaView.layer.masksToBounds = true
+            
             if tweet.retweeted == true {
                 retweetButton.isSelected = true
             }
@@ -70,15 +77,11 @@ class TweetCell: UITableViewCell {
                 favoriteButton.isSelected = false
             }
             
-//            if tweet.media.isEmpty != true {
-//                let media = tweet.media
-//                let photoView = UIImageView()
-//                photoView.contentMode = .scaleAspectFill
-//                let photoURL = URL(string: media["expanded_url"] as! String)
-//                photoView.af_setImage(withURL: photoURL!)
-//                photoView.frame.size = CGSize(width: self.frame.width - 16, height: 400)
-//                self.insertSubview(photoView, at: 0)
-//            }
+            if let media = tweet.media {
+                let photoView = UIImageView()
+                photoView.contentMode = .scaleAspectFill
+                mediaView.af_setImage(withURL: media)
+            }
             
         }
     }

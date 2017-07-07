@@ -32,14 +32,12 @@ class Tweet {
         retweeted = dictionary["retweeted"] as! Bool
         
         let entities = dictionary["entities"] as! [String: Any]
-//        if entities["media"] != nil {
-//            print(entities["media"])
-//            let mediaDictionary = entities["media"] as! [String : Any]
-//            print(mediaDictionary)
-//            let url = mediaDictionary["expanded_url"] as! String
-//            media = URL(string: url)
-//            print(media!)
-//        }
+        if entities["media"] != nil {
+            let mediaArray = entities["media"] as! [[String : Any]]
+            let mediaDictionary = mediaArray[0]
+            let url = mediaDictionary["media_url_https"] as! String
+            media = URL(string: url)
+        }
         
         
         let twitterUser = dictionary["user"] as! [String: Any]

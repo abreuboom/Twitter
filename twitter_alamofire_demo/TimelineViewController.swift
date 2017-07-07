@@ -8,11 +8,14 @@
 
 import UIKit
 
-class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate,  ComposeViewControllerDelegate, TweetCellDelegate {
+class TimelineViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIGestureRecognizerDelegate, UIScrollViewDelegate,  ComposeViewControllerDelegate, TweetCellDelegate {
     
     var tweets: [Tweet] = []
     
     var tappedUser: User?
+    
+    var isMoreDataLoading = false
+    var loadingMoreView:InfiniteScrollActivityView?
     
     @IBOutlet weak var tableView: UITableView!
     
@@ -37,8 +40,16 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 100
-        getTimeline()
         
+        loadingMoreView = InfiniteScrollActivityView(frame: tableView.frame)
+        loadingMoreView!.isHidden = true
+        tableView.addSubview(loadingMoreView!)
+        
+        var insets = tableView.contentInset
+        insets.bottom += InfiniteScrollActivityView.defaultHeight
+        tableView.contentInset = insets
+        
+        getTimeline()
     }
     
     func getTimeline() {
@@ -51,6 +62,40 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
             }
         }
         tableView.reloadData()
+    }
+    
+    func loadMoreTweets() {
+        let lastTweet = tweets[tweets.count - 1]
+        APIManager.shared.getMoreTweets(tweet: lastTweet) { (tweets, error) in
+            if let tweets = tweets {
+                self.tweets = self.tweets + tweets
+                self.tableView.reloadData()
+                self.isMoreDataLoading = false
+            } else if let error = error {
+                print("Error getting new tweets: " + error.localizedDescription)
+            }
+        }
+        tableView.reloadData()
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (!isMoreDataLoading) {
+            // Calculate the position of one screen length before the bottom of the results
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            
+            // When the user has scrolled past the threshold, start requesting
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.isDragging) {
+                isMoreDataLoading = true
+                
+                // Update position of loadingMoreView, and start loading indicator
+                let frame = CGRect(x: 0, y: tableView.contentSize.height, width: tableView.bounds.size.width, height: InfiniteScrollActivityView.defaultHeight)
+                loadingMoreView?.frame = frame
+                loadingMoreView!.startAnimating()
+                
+                loadMoreTweets()
+            }
+        }
     }
     
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
@@ -105,7 +150,6 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         if tappedUser != nil {
             performSegue(withIdentifier: "profileSegue", sender: nil)
         }
-        
     }
     
     

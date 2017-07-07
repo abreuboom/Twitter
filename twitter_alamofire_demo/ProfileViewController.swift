@@ -8,7 +8,7 @@
 
 import UIKit
 
-class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource {
+class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
 
     @IBOutlet weak var backgroundPhotoView: UIImageView!
     @IBOutlet weak var profilePhotoView: UIImageView!
@@ -17,12 +17,16 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     @IBOutlet weak var captionField: UILabel!
     @IBOutlet weak var followingLabel: UILabel!
     @IBOutlet weak var followersLabel: UILabel!
+    @IBOutlet weak var followButton: UIButton!
     
     @IBOutlet weak var tableView: UITableView!
     
     var tweets: [Tweet] = []
     
     var user = User.current
+    
+    var isMoreDataLoading = false
+    var loadingMoreView:InfiniteScrollActivityView?
     
     override var preferredStatusBarStyle: UIStatusBarStyle {
         return .lightContent
@@ -43,6 +47,14 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
         // add refresh control to table view
         tableView.insertSubview(refreshControl, at: 0)
+        
+        loadingMoreView = InfiniteScrollActivityView(frame: tableView.frame)
+        loadingMoreView!.isHidden = true
+        tableView.addSubview(loadingMoreView!)
+        
+        var insets = tableView.contentInset
+        insets.bottom += InfiniteScrollActivityView.defaultHeight
+        tableView.contentInset = insets
         
         tableView.dataSource = self
         tableView.delegate = self
@@ -91,6 +103,42 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         }
         tableView.reloadData()
     }
+    
+    func loadMoreTweets() {
+        let lastTweet = tweets[tweets.count - 1]
+        let screenName = user?.screenName
+        APIManager.shared.getMoreUserTweets(screenName: screenName!, tweet: lastTweet) { (tweets, error) in
+            if let tweets = tweets {
+                self.tweets = self.tweets + tweets
+                self.tableView.reloadData()
+                self.isMoreDataLoading = false
+            } else if let error = error {
+                print("Error getting new tweets: " + error.localizedDescription)
+            }
+        }
+        tableView.reloadData()
+    }
+    
+    func scrollViewDidScroll(_ scrollView: UIScrollView) {
+        if (!isMoreDataLoading) {
+            // Calculate the position of one screen length before the bottom of the results
+            let scrollViewContentHeight = tableView.contentSize.height
+            let scrollOffsetThreshold = scrollViewContentHeight - tableView.bounds.size.height
+            
+            // When the user has scrolled past the threshold, start requesting
+            if(scrollView.contentOffset.y > scrollOffsetThreshold && tableView.isDragging) {
+                isMoreDataLoading = true
+                
+                // Update position of loadingMoreView, and start loading indicator
+                let frame = CGRect(x: 0, y: tableView.contentSize.height, width: tableView.bounds.size.width, height: InfiniteScrollActivityView.defaultHeight)
+                loadingMoreView?.frame = frame
+                loadingMoreView!.startAnimating()
+                
+                loadMoreTweets()
+            }
+        }
+    }
+
     
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         getTimeline()
