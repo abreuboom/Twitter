@@ -19,7 +19,6 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
     
     @IBOutlet weak var tableView: UITableView!
     
-    
     override func viewWillAppear(_ animated: Bool) {
         self.navigationController?.navigationBar.isTranslucent = false
         self.navigationController?.view.backgroundColor = .white
@@ -27,7 +26,6 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
     
     override func viewDidLoad() {
         super.viewDidLoad()
-        
         
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
@@ -68,6 +66,7 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         let lastTweet = tweets[tweets.count - 1]
         APIManager.shared.getMoreTweets(tweet: lastTweet) { (tweets, error) in
             if let tweets = tweets {
+                //tweets.remove(at: 0)
                 self.tweets = self.tweets + tweets
                 self.tableView.reloadData()
                 self.isMoreDataLoading = false
@@ -110,9 +109,12 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
     func tableView(_ tableView: UITableView, cellForRowAt indexPath: IndexPath) -> UITableViewCell {
         let cell = tableView.dequeueReusableCell(withIdentifier: "TweetCell", for: indexPath) as! TweetCell
         
+        cell.replyButton.tag = indexPath.row
+        
         cell.profilePhotoView.tag = indexPath.row
         let tapped:UITapGestureRecognizer = UITapGestureRecognizer(target: self, action: #selector(TimelineViewController.didTapProfile(_:)))
         tapped.numberOfTapsRequired = 1
+        
         cell.profilePhotoView?.addGestureRecognizer(tapped)
         
         cell.tweet = tweets[indexPath.row]
@@ -138,6 +140,11 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         performSegue(withIdentifier: "composeSegue", sender: self)
     }
     
+    @IBAction func replyTweet(_ sender: UIButton) {
+        let tweet = tweets[sender.tag]
+        performSegue(withIdentifier: "detailSegue", sender: tweet)
+    }
+    
     func did(post: Tweet) {
         tweets.insert(post, at: 0)
         tableView.reloadData()
@@ -152,7 +159,6 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
         }
     }
     
-    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "composeSegue" {
             let composeViewController = segue.destination as! ComposeViewController
@@ -163,9 +169,16 @@ class TimelineViewController: UIViewController, UITableViewDelegate, UITableView
             profileViewController.user = tappedUser!
         }
         else if segue.identifier == "detailSegue" {
-            let cell = sender as! UITableViewCell
-            if let indexPath =  tableView.indexPath(for: cell) {
-                let tweet = tweets[indexPath.row]
+            if sender is UITableViewCell {
+                let cell = sender as! UITableViewCell
+                if let indexPath =  tableView.indexPath(for: cell) {
+                    let tweet = tweets[indexPath.row]
+                    let detailViewController = segue.destination as! DetailViewController
+                    detailViewController.tweet = tweet
+                }
+            }
+            else if sender is Tweet {
+                let tweet = sender as! Tweet
                 let detailViewController = segue.destination as! DetailViewController
                 detailViewController.tweet = tweet
             }

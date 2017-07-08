@@ -22,6 +22,10 @@ class DetailViewController: UIViewController, TweetCellDelegate {
     @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var favoriteButton: UIButton!
     
+    @IBOutlet weak var replyField: UITextField!
+    @IBOutlet weak var tweetButton: UIButton!
+    
+    
     var tweet: Tweet?
     
     override func viewDidLoad() {
@@ -127,6 +131,28 @@ class DetailViewController: UIViewController, TweetCellDelegate {
                 }
             })
             sender.isSelected = true
+        }
+    }
+    
+    @IBAction func composeReply(_ sender: UIButton) {
+        replyField.becomeFirstResponder()
+    }
+    
+    @IBAction func sendReply(_ sender: UIButton) {
+        if(replyField.text != nil) {
+            let post = replyField.text
+            let tweet = self.tweet
+            APIManager.shared.replyTweet(with: post!, tweet: tweet!) { (tweet, error) in
+                if let error = error {
+                    print("Error replying to Tweet: \(error.localizedDescription)")
+                } else if tweet != nil {
+                    print("Reply Tweet Success!")
+                }
+            }
+            dismiss(animated: true, completion: nil)
+        }
+        else {
+            print("No text entered")
         }
     }
     

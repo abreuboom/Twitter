@@ -38,7 +38,7 @@ class User {
         }
     }
     
-    
+    var id: Int64
     var name: String
     var screenName: String?
     var description: String?
@@ -49,6 +49,7 @@ class User {
     
     init(dictionary: [String: Any]) {
         self.dictionary = dictionary
+        id = dictionary["id"] as! Int64
         name = dictionary["name"] as! String
         screenName = dictionary["screen_name"] as? String
         description = dictionary["description"] as? String

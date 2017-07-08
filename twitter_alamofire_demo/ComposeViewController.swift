@@ -58,21 +58,24 @@ class ComposeViewController: UIViewController, UITextViewDelegate{
         }
     }
     
-    
     func textViewDidChange(_ textView: UITextView) {
         let count = textView.text.characters.count
-        if count >= 120 && count < 140 {
+        if count >= 120 && count <= 140 {
             characterCount.textColor = .red
+            tweetButton.isUserInteractionEnabled = true
         }
-        else if count >= 140{
+        else if count > 140{
             characterCount.textColor = .red
+            tweetButton.isUserInteractionEnabled = false
         }
         else{
             characterCount.textColor = .lightGray
+            tweetButton.isUserInteractionEnabled = true
             
         }
         characterCount.text = String(140 - count)
     }
+    
     @IBAction func tweet(_ sender: UIButton) {
         if(textView.text != "What's happening?" || textView.text != nil){
             let post = textView.text

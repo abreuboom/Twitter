@@ -14,6 +14,8 @@ target 'twitter_alamofire_demo' do
   pod 'KeychainAccess'
   pod 'DateToolsSwift'
   pod 'ActiveLabel'
+  pod 'TwicketSegmentedControl'
+  pod 'PKHUD', '~> 4.0'
 
   target 'twitter_alamofire_demoTests' do
     inherit! :search_paths

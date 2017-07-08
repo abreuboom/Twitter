@@ -7,9 +7,10 @@
 //
 
 import UIKit
+import TwicketSegmentedControl
 
 class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewDataSource, UIScrollViewDelegate {
-
+    
     @IBOutlet weak var backgroundPhotoView: UIImageView!
     @IBOutlet weak var profilePhotoView: UIImageView!
     @IBOutlet weak var nameField: UILabel!
@@ -42,6 +43,12 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     override func viewDidLoad() {
         super.viewDidLoad()
         
+//        let titles = ["Tweets", "Media", "Likes"]
+//        let segmentedControl = TwicketSegmentedControl(frame: view.frame)
+//        segmentedControl.setSegmentItems(titles)
+//        segmentedControl.delegate = self
+//        segmentControlView.insertSubview(segmentedControl, at: 0)
+        
         // Initialize a UIRefreshControl
         let refreshControl = UIRefreshControl()
         refreshControl.addTarget(self, action: #selector(refreshControlAction(_:)), for: UIControlEvents.valueChanged)
@@ -62,14 +69,29 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         tableView.rowHeight = UITableViewAutomaticDimension
         tableView.estimatedRowHeight = 100
         
+        styleObjects()
+        setUserData()
+        getTimeline()
+    }
+    
+    func styleObjects() {
         profilePhotoView.layer.borderWidth = 3
         profilePhotoView.layer.borderColor = UIColor.white.cgColor
         profilePhotoView.layer.cornerRadius = profilePhotoView.frame.width / 2
         profilePhotoView.layer.masksToBounds = true
         profilePhotoView.layer.zPosition = 20
         
-        setUserData()
-        getTimeline()
+        followButton.layer.borderColor = followButton.currentTitleColor.cgColor
+        followButton.layer.borderWidth = 2
+//        followButton.layer.cornerRadius = followButton.frame.width/3
+//        followButton.layer.masksToBounds = true
+        
+        let currentUser = User.current
+        if user?.id == currentUser?.id {
+            followButton.setTitle("Me!", for: .normal)
+            followButton.isSelected = true
+            followButton.isUserInteractionEnabled = false
+        }
     }
     
     func setUserData () {
@@ -109,6 +131,7 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
         let screenName = user?.screenName
         APIManager.shared.getMoreUserTweets(screenName: screenName!, tweet: lastTweet) { (tweets, error) in
             if let tweets = tweets {
+                //tweets.remove(at: 0)
                 self.tweets = self.tweets + tweets
                 self.tableView.reloadData()
                 self.isMoreDataLoading = false
@@ -138,7 +161,6 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
     }
-
     
     func refreshControlAction(_ refreshControl: UIRefreshControl) {
         getTimeline()
@@ -160,17 +182,46 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
     func tableView(_ tableView: UITableView, didSelectRowAt indexPath: IndexPath) {
         tableView.deselectRow(at: indexPath, animated: true)
     }
-
+    
     @IBAction func composeTweet(_ sender: UIBarButtonItem) {
         performSegue(withIdentifier: "composeSegue", sender: self)
     }
+    
+    @IBAction func followUser(_ sender: UIButton) {
+        if sender.isUserInteractionEnabled == true {
+            if sender.isSelected == true {
+                APIManager.shared.unfollowUser(user: user!, completion: { (tweet: Tweet?, error: Error?) in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    }
+                    else {
+                        self.followButton.isSelected = false
+                    }
+                })
+                sender.isSelected = false
+            }
+            else {
+                APIManager.shared.followUser(user: user!, completion: { (tweet: Tweet?, error: Error?) in
+                    if let error = error {
+                        print(error.localizedDescription)
+                    }
+                    else {
+                        self.followButton.isSelected = true
+                    }
+                })
+
+                sender.isSelected = true
+            }
+        }
+    }
+    
     
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
     }
     
-
+    
     override func prepare(for segue: UIStoryboardSegue, sender: Any?) {
         if segue.identifier == "detailSegue" {
             let cell = sender as! UITableViewCell
@@ -181,5 +232,11 @@ class ProfileViewController: UIViewController, UITableViewDelegate, UITableViewD
             }
         }
     }
-
 }
+
+extension ProfileViewController: TwicketSegmentedControlDelegate {
+    func didSelect(_ segmentIndex: Int) {
+        print("Selected index: \(segmentIndex)")
+    }
+}
+

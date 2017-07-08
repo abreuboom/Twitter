@@ -218,6 +218,62 @@ class APIManager: SessionManager {
         }
     }
     
+    // Reply to a tweet
+    
+    func replyTweet(with text: String, tweet: Tweet, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/statuses/update.json"
+        let parameters = ["status": text, "in_reply_to_status_id": tweet.id] as [String : Any]
+        oauthManager.client.post(urlString, parameters: parameters, headers: nil, body: nil, success: { (response: OAuthSwiftResponse) in
+            let tweetDictionary = try! response.jsonObject() as! [String: Any]
+            let tweet = Tweet(dictionary: tweetDictionary)
+            completion(tweet, nil)
+        }) { (error: OAuthSwiftError) in
+            completion(nil, error.underlyingError)
+        }
+    }
+    
+    // Follow a user
+    
+    func followUser(user: User, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/friendships/create.json?user_id="
+        let id = String(user.id)
+        let fullUrlString = urlString + id
+        let parameters = ["user_id": user.id] as [String: Any]
+        request(fullUrlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+                let tweetDictionary = response.result.value as? [String: Any] {
+                let tweet = Tweet(dictionary: tweetDictionary)
+                print("user followed")
+                completion(tweet, nil)
+            } else {
+                print("follow failed")
+                print(response.result.error!)
+                completion(nil, response.result.error)
+            }
+        }
+    }
+    
+    // Unfollow a user
+    
+    func unfollowUser(user: User, completion: @escaping (Tweet?, Error?) -> ()) {
+        let urlString = "https://api.twitter.com/1.1/friendships/destroy.json?user_id="
+        let id = String(user.id)
+        let fullUrlString = urlString + id
+        let parameters = ["user_id": user.id] as [String: Any]
+        request(fullUrlString, method: .post, parameters: parameters, encoding: JSONEncoding.default).validate().responseJSON { (response) in
+            if response.result.isSuccess,
+                let tweetDictionary = response.result.value as? [String: Any] {
+                let tweet = Tweet(dictionary: tweetDictionary)
+                print("user followed")
+                completion(tweet, nil)
+            } else {
+                print("follow failed")
+                print(response.result.error!)
+                completion(nil, response.result.error)
+            }
+        }
+    }
+    
     // MARK: TODO: Get User Timeline
     
     func getUserTimeLine(screenName: String, completion: @escaping ([Tweet]?, Error?) -> ()) {
@@ -276,6 +332,8 @@ class APIManager: SessionManager {
                 completion(tweets, nil)
         }
     }
+    
+    //Load more data from a specific user
     
     func getMoreUserTweets(screenName: String, tweet: Tweet, completion: @escaping ([Tweet]?, Error?) -> ()) {
         let parameters = ["max_id": tweet.id]

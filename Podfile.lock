@@ -9,12 +9,14 @@ PODS:
   - OAuthSwiftAlamofire (0.1.0):
     - Alamofire
     - OAuthSwift
+  - PKHUD (4.2.3)
   - Prephirences (3.0.1):
     - Prephirences/Core (= 3.0.1)
     - Prephirences/Keys (= 3.0.1)
   - Prephirences/Core (3.0.1)
   - Prephirences/Keys (3.0.1):
     - Prephirences/Core
+  - TwicketSegmentedControl (0.1.2)
 
 DEPENDENCIES:
   - ActiveLabel
@@ -24,7 +26,9 @@ DEPENDENCIES:
   - KeychainAccess
   - OAuthSwift (~> 1.1.0)
   - OAuthSwiftAlamofire
+  - PKHUD (~> 4.0)
   - Prephirences
+  - TwicketSegmentedControl
 
 SPEC CHECKSUMS:
   ActiveLabel: 68625f22775f51c31bb691ca8de20f1e5a3bc825
@@ -34,8 +38,10 @@ SPEC CHECKSUMS:
   KeychainAccess: 017ea25e313a49eda10bb19b0bb0760fb1edfe1a
   OAuthSwift: 6e3a103b3e5639411769cc7e199ec7e14bd1547f
   OAuthSwiftAlamofire: 20bb998ac506f82c3bab0625fbc98a9c6fca783f
+  PKHUD: c7692163a09875cbf15827dc581df3c5cf7f1015
   Prephirences: d0ec0bd6047edb3370364345857a769aaf3db312
+  TwicketSegmentedControl: 6d7a4cf243657e0ac3f00d06d873a25334c04042
 
-PODFILE CHECKSUM: ab24178f8ba3f290a263d5293308683354a7250d
+PODFILE CHECKSUM: 38cad7d57aad7fae52d24bc0738b70ca12599e23
 
 COCOAPODS: 1.2.1

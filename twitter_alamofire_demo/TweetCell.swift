@@ -18,20 +18,25 @@ class TweetCell: UITableViewCell {
     
     weak var delegate: TweetCellDelegate!
     
+    
+    @IBOutlet weak var stackView: UIStackView!
     @IBOutlet weak var usernameLabel: UILabel!
     @IBOutlet weak var tweetTextLabel: ActiveLabel!
     @IBOutlet weak var handleLabel: UILabel!
-    @IBOutlet weak var repliesLabel: UILabel!
     @IBOutlet weak var retweetsLabel: UILabel!
     @IBOutlet weak var likesLabel: UILabel!
     @IBOutlet weak var dateLabel: UILabel!
     @IBOutlet weak var profilePhotoView: UIImageView!
+    @IBOutlet weak var replyButton: UIButton!
     @IBOutlet weak var retweetButton: UIButton!
     @IBOutlet weak var favoriteButton: UIButton!
     @IBOutlet weak var mediaView: UIImageView!
     
     var tweet: Tweet! {
         didSet {
+            profilePhotoView.image = nil
+            mediaView.image = nil
+            
             tweetTextLabel.text = tweet.text
             tweetTextLabel.numberOfLines = 0
             tweetTextLabel.enabledTypes = [.mention, .hashtag, .url]
@@ -53,7 +58,6 @@ class TweetCell: UITableViewCell {
             usernameLabel.text = tweet.user.name
             handleLabel.text = "@" + tweet.user.screenName! + "  ·"
             dateLabel.text = tweet.createdAtString
-            repliesLabel.text = String(0)
             retweetsLabel.text = tweet.intFormatter(x: tweet.retweetCount)
             likesLabel.text = tweet.intFormatter(x: tweet.favoriteCount!)
             profilePhotoView.af_setImage(withURL:tweet.user.profilePhotoUrl!)
@@ -78,9 +82,11 @@ class TweetCell: UITableViewCell {
             }
             
             if let media = tweet.media {
-                let photoView = UIImageView()
-                photoView.contentMode = .scaleAspectFill
+                mediaView.isHidden = false
                 mediaView.af_setImage(withURL: media)
+            }
+            else {
+                mediaView.isHidden = true
             }
             
         }
@@ -142,7 +148,7 @@ class TweetCell: UITableViewCell {
     
     override func awakeFromNib() {
         super.awakeFromNib()
-        // Initialization code
+        
     }
     
     override func setSelected(_ selected: Bool, animated: Bool) {
